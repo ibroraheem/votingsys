@@ -1,7 +1,12 @@
 const user = require('../models/user')
 const nodemailer = require('nodemailer')
+const candidate = require('../models/candidate')
+
 
 const requestOtp = async (req, res) => {
+    if (user.status !== 'verified') {
+        return res.status(401).send({ message: 'Unverified Voter. Please check your email to verify your voter account' })
+    }
     const email = user.matric.replace('/', '-') + '@students.unilorin.edu.ng'
     try {
         const user = await user.findOne({ matric })
@@ -20,7 +25,7 @@ const requestOtp = async (req, res) => {
             }
         })
         const mailOptions = {
-            from: 'info@nuesaunilorin.com',
+            from: 'noreply@nuesaunilorin.com',
             to: email,
             subject: 'NUESA Unilorin Voting System',
             text: 'Your OTP is ' + otp
@@ -39,6 +44,7 @@ const requestOtp = async (req, res) => {
 }
 
 const verifyOtp = async (req, res) => {
+    
     const { matric, otp } = req.body
     try {
         const user = await user.findOne({ matric })
@@ -52,6 +58,15 @@ const verifyOtp = async (req, res) => {
         } else {
             res.status(400).send({ message: 'Invalid OTP' })
         }
+    } catch (error) {
+        res.status(400).send({ message: error.message })
+    }
+}
+
+const getCandidates = async (req, res) => {
+    try {
+        const candidates = await Candidate.find({})
+        res.status(200).send(candidates)
     } catch (error) {
         res.status(400).send({ message: error.message })
     }
@@ -81,5 +96,6 @@ const vote = async (req, res) => {
 module.exports = {
     requestOtp,
     verifyOtp,
+    getCandidates,
     vote
 }

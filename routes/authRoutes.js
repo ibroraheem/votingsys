@@ -1,11 +1,13 @@
 const express = require('express')
 const router = express.Router()
-const {login, register, addCandidate, deleteCandidate, updateCandidate, getCandidates} = require('../controllers/authController')
+const {login, register, verifyVoter, getCandidate, addCandidate, deleteCandidate, updateCandidate, getCandidates} = require('../controllers/authController')
 
 router.post('/register', register)
 router.post('/login', login)
 router.post('/candidate', addCandidate)
-router.delete('/candidate/:nickname', deleteCandidate)
-router.patch('/candidate/:nickname', updateCandidate)
+router.get('/confirm/:confirmationCode', verifyVoter)
+router.delete('/candidate/:id', deleteCandidate)
+router.patch('/candidate/:id', updateCandidate)
 router.get('/candidates', getCandidates)
+router.get('/candidate/id', getCandidate)
 module.exports= router

@@ -15,7 +15,7 @@ const UserSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    password:{
+    password: {
         type: String,
         required: true
     },
@@ -29,7 +29,21 @@ const UserSchema = new mongoose.Schema({
         required: true,
         enum: ['voter', 'admin']
     },
-    otp:{
+    status: {
+        type: String,
+        required: true,
+        enum: ['verified', 'unverified'],
+        default: 'unverified'
+    },
+    confirmationCode: {
+        type: String,
+        unique: true
+    },
+    verified:{
+        type: Boolean,
+        default: false
+    },
+    otp: {
         type: String,
         required: false
     }
