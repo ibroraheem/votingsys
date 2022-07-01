@@ -1,7 +1,7 @@
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
-const Candidate = require('../models/candidate')
+const Candidate = require('../models/candidates')
 require('dotenv').config()
 const register = async (req, res) => {
 
@@ -45,9 +45,9 @@ const login = async (req, res) => {
     }
 }
 const addCandidate = async (req, res) => {
-    if (req.user.role !== 'admin') {
-        return res.status(403).send({ message: 'Unauthorized' })
-    }
+    // if (req.user.role !== 'admin') {
+    //     return res.status(403).send({ message: 'Unauthorized' })
+    // }
     const { name, nickname, post, image, department } = req.body
     const candidate = new Candidate({
         nickname,
@@ -65,10 +65,10 @@ const addCandidate = async (req, res) => {
 
 }
 const deleteCandidate = async (req, res) => {
-    if (req.user.role !== 'admin') {
-        return res.status(403).send({ message: 'Unauthorized' })
-    }
-    const { nickname } = req.body
+    // if (req.user.role !== 'admin') {
+    //     return res.status(403).send({ message: 'Unauthorized' })
+    // }
+    const { nickname: candidateNickname } = req.params
     try {
         await Candidate.deleteOne({ nickname })
         res.status(200).send({ message: 'Candidate deleted successfully' })
