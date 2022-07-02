@@ -81,6 +81,7 @@ const vote = async (req, res) => {
         }
         if (user.verified) {
             const candidate = await candidate.findOne({ nickname: candidate })
+            candidate.votedBy.push(matric)
             candidate.votes += 1
             await candidate.save()
             res.status(200).send({ message: 'Voted successfully' })

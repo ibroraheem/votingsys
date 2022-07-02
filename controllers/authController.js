@@ -133,10 +133,21 @@ const updateCandidate = async (req, res) => {
 }
 const getCandidates = async (req, res) => {
     try {
-        const candidates = await Candidate.find({})
-        res.status(200).json(candidates)
+        const candidate = await Candidate.find({})
+        res.status(200).json({name: candidate.name, nickname: candidate.nickname, post: candidate.post, image: candidate.image})
     } catch (error) {
         res.status(400).send({ message: error.message })
+    }
+}
+const getCandidateVotes = async (req, res) => {
+    if(req.user.role !== 'admin'){
+        return res.status(403).send({ message: 'Unauthorized' })
+    }
+    try {0
+        const candidate = await Candidate.find({})
+        res.status(200).json({candidate: candidate})
+    } catch (err) {
+        res.status(400).send({ message: err.message })
     }
 }
 
@@ -150,4 +161,4 @@ const getCandidate = async (req, res) => {
     }
 }
 
-module.exports = { register, login, verifyVoter, addCandidate, deleteCandidate, updateCandidate, getCandidates, getCandidate }
+module.exports = { register, login, verifyVoter, addCandidate, deleteCandidate, updateCandidate, getCandidates, getCandidate, getCandidateVotes }

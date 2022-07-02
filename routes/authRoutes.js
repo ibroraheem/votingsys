@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const {login, register, verifyVoter, getCandidate, addCandidate, deleteCandidate, updateCandidate, getCandidates} = require('../controllers/authController')
+const {login, register, verifyVoter, getCandidate, addCandidate, getCandidateVotes, deleteCandidate, updateCandidate, getCandidates} = require('../controllers/authController')
 
 router.post('/register', register)
 router.post('/login', login)

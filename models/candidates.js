@@ -9,7 +9,7 @@ const CandidateSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    post:{
+    post: {
         type: String,
         required: true,
         enum: ['President', 'Vice President', 'General Secretary', 'Financial Secretary', 'Sports Secretary', 'Welfare Secretary', 'PRO', 'Assistant General Secretary', 'Social Secretary', 'Technical Director', 'SRC']
@@ -22,7 +22,12 @@ const CandidateSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    votes:{
+    votedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    votes: {
         type: Number,
         default: 0
     }
