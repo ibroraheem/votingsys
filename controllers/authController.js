@@ -1,14 +1,14 @@
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
-const Candidate = require('../models/candidates')
+const nodemailer = require('nodemailer')
 require('dotenv').config()
 const register = async (req, res) => {
 
     const { surname, firstname, matric, department, password } = req.body
     const isFirstAccount = (await User.countDocuments({})) === 0;
     const role = isFirstAccount ? 'admin' : 'voter';
-    const email = user.matric.replace('/', '-') + '@students.unilorin.edu.ng'
+    const email = matric.replace('/', '-') + '@students.unilorin.edu.ng'
     var token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '1h' })
     const user = new User({
         surname,
@@ -24,15 +24,16 @@ const register = async (req, res) => {
         user.password = await bcrypt.hash(password, salt)
 
         const transport = nodemailer.createTransport({
-            host: 'smtp.ethereal.email',
-            port: 587,
+            host: 'smtp.zoho.eu',
+            port: 465,
             auth: {
-                user: 'thelma.mayer32@ethereal.email',
-                pass: 'RQFCAESNyvY18ad5E1'
+                user: process.env.MAIL,
+                pass: process.env.PASS
             }
+
         })
         const mailOptions = {
-            from: 'noreply@nuesaunilorin.com',
+            from: 'ibroraheem@zohomail.eu',
             to: email,
             subject: 'Please confirm your account',
             html: `<h1>Please confirm your account</h1>
@@ -55,16 +56,16 @@ const register = async (req, res) => {
     }
 }
 const verifyVoter = async (req, res) => {
-    User.findOne({confirmationCode: req.params.token})
-    .then(user => {
-        if(user) {
-            user.status = 'Verified'
-            user.save()
-            res.status(200).send({ message: 'User verified' })
-        } else {
-            res.status(400).send({ message: 'User not found' })
-        }
-    })
+    User.findOne({ confirmationCode: req.params.token })
+        .then(user => {
+            if (user) {
+                user.status = 'Verified'
+                user.save()
+                res.status(200).send({ message: 'User verified' })
+            } else {
+                res.status(400).send({ message: 'User not found' })
+            }
+        })
 }
 
 const login = async (req, res) => {
@@ -87,78 +88,6 @@ const login = async (req, res) => {
         res.status(400).send({ message: error.message })
     }
 }
-const addCandidate = async (req, res) => {
-    if (req.user.role !== 'admin') {
-        return res.status(403).send({ message: 'Unauthorized' })
-    }
-    const { name, nickname, post, image, department } = req.body
-    const candidate = new Candidate({
-        nickname,
-        name,
-        post,
-        image,
-        department
-    })
-    try {
-        await candidate.save()
-        res.status(201).send({ message: 'Candidate created successfully' })
-    } catch (error) {
-        res.status(400).send({ message: error.message })
-    }
 
-}
-const deleteCandidate = async (req, res) => {
-    if (req.user.role !== 'admin') {
-        return res.status(403).send({ message: 'Unauthorized' })
-    }
-    const { id: _id } = req.params
-    try {
-        await Candidate.deleteOne({ _id: Candidate._id })
-        res.status(200).send({ message: 'Candidate deleted successfully' })
-    } catch (error) {
-        res.status(400).send({ message: error.message })
-    }
-}
-const updateCandidate = async (req, res) => {
-    if (req.user.role !== 'admin') {
-        return res.status(403).send({ message: 'Unauthorized' })
-    }
-    const { nickname, name, post, image, department } = req.body
-    try {
-        await Candidate.updateOne({ _id: Candidate._id }, { name, nickname, post, image, department })
-        res.status(200).send({ Candidate: Candidate, message: 'Candidate updated successfully' })
-    } catch (error) {
-        res.status(400).send({ message: error.message })
-    }
-}
-const getCandidates = async (req, res) => {
-    try {
-        const candidate = await Candidate.find({})
-        res.status(200).json({name: candidate.name, nickname: candidate.nickname, post: candidate.post, image: candidate.image})
-    } catch (error) {
-        res.status(400).send({ message: error.message })
-    }
-}
-const getCandidateVotes = async (req, res) => {
-    if(req.user.role !== 'admin'){
-        return res.status(403).send({ message: 'Unauthorized' })
-    }
-    try {0
-        const candidate = await Candidate.find({})
-        res.status(200).json({candidate: candidate})
-    } catch (err) {
-        res.status(400).send({ message: err.message })
-    }
-}
 
-const getCandidate = async (req, res) => {
-    const { id: _id } = req.params
-    try {
-        const candidate = await Candidate.findOne({ _id: Candidate._id })
-        res.status(200).send(candidate)
-    } catch (error) {
-        res.status(400).send({ message: error.message })
-    }
-}
-
-module.exports = { register, login, verifyVoter, addCandidate, deleteCandidate, updateCandidate, getCandidates, getCandidate, getCandidateVotes }
+module.exports = { register, login, verifyVoter }

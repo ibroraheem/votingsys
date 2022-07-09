@@ -23,9 +23,8 @@ const CandidateSchema = new mongoose.Schema({
         required: true
     },
     votedBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+        type: Array,
+        default: []
     },
     votes: {
         type: Number,

@@ -1,7 +1,6 @@
 const user = require('../models/user')
 const nodemailer = require('nodemailer')
-const candidate = require('../models/candidate')
-
+require('dotenv').config()
 
 const requestOtp = async (req, res) => {
     if (user.status !== 'verified') {
@@ -17,20 +16,20 @@ const requestOtp = async (req, res) => {
         user.otp = otp
         await user.save()
         const transporter = nodemailer.createTransport({
-            host: 'smtp.ethereal.email',
-            port: 587,
+            host: 'smtp.zoho.eu',
+            port: 465,
             auth: {
-                user: 'thelma.mayer32@ethereal.email',
-                pass: 'RQFCAESNyvY18ad5E1'
+                user: process.env.MAIL,
+                pass: process.env.PASS
             }
         })
         const mailOptions = {
-            from: 'noreply@nuesaunilorin.com',
+            from: process.env.MAIL,
             to: email,
             subject: 'NUESA Unilorin Voting System',
             text: 'Your OTP is ' + otp
         }
-        await transporter.sendMail(mailOptions, function (error, info) {
+        transporter.sendMail(mailOptions, function (error, info) {
             if (error) {
                 console.log(error)
             } else {
