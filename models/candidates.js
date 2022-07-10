@@ -15,8 +15,8 @@ const CandidateSchema = new mongoose.Schema({
         enum: ['President', 'Vice President', 'General Secretary', 'Financial Secretary', 'Sports Secretary', 'Welfare Secretary', 'PRO', 'Assistant General Secretary', 'Social Secretary', 'Technical Director', 'SRC']
     },
     image: {
-        type: String,
-        required: true
+        data: Buffer,
+        contentType: String
     },
     department: {
         type: String,

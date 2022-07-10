@@ -15,6 +15,7 @@ app.get('/', (req, res) => {
 app.use('', require('./routes/authRoutes'))
 app.use('', require('./routes/voteRoutes'))
 app.use('', require('./routes/candidateRoutes'))
+app.use('', require('./routes/voterRoutes'))
 
 const PORT = process.env.PORT
 

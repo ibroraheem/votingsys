@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const nodemailer = require('nodemailer')
 require('dotenv').config()
+
+
 const register = async (req, res) => {
 
     const { surname, firstname, matric, department, password } = req.body
@@ -76,18 +78,17 @@ const login = async (req, res) => {
     try {
         const user = await User.findOne({ matric })
         if (!user) {
-            return res.status(400).send({ message: 'Invalid credentials' })
+            return res.status(400).send({ message: 'Invalid Matric Number' })
         }
         const isMatch = await bcrypt.compare(password, user.password)
         if (!isMatch) {
-            return res.status(400).send({ message: 'Invalid credentials' })
+            return res.status(400).send({ message: 'Invalid Password' })
         }
-        const token = jwt.sign({ matric: user.matric, department: user.department }, process.env.JWT_SECRET, { expiresIn: '1h' })
+        const token = jwt.sign({ matric: user.matric, department: user.department, level: user.level}, process.env.JWT_SECRET, { expiresIn: '1h' })
         res.status(200).send({ token })
     } catch (error) {
         res.status(400).send({ message: error.message })
     }
 }
-
 
 module.exports = { register, login, verifyVoter }
