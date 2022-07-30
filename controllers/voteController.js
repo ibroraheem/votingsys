@@ -1,11 +1,12 @@
 const user = require('../models/user')
 const nodemailer = require('nodemailer')
+const jwt = require('jsonwebtoken')
 require('dotenv').config()
 
 const requestOtp = async (req, res) => {
-    if (user.status !== 'verified') {
-        return res.status(401).send({ message: 'Unverified Voter. Please check your email to verify your voter account' })
-    }
+    const token = req.headers.authorization.split(' ')[1]
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const matric = decoded.matric
     const email = user.matric.replace('/', '-') + '@students.unilorin.edu.ng'
     try {
         const user = await user.findOne({ matric })
@@ -43,8 +44,10 @@ const requestOtp = async (req, res) => {
 }
 
 const verifyOtp = async (req, res) => {
-    
-    const { matric, otp } = req.body
+    const token = req.headers.authorization.split(' ')[1]
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const matric = decoded.matric
+    const otp = req.body
     try {
         const user = await user.findOne({ matric })
         if (!user) {
@@ -72,14 +75,14 @@ const getCandidates = async (req, res) => {
 }
 
 const vote = async (req, res) => {
-    const { matric } = req.body
+ 
     try {
-        const user = await user.findOne({ matric })
-        if (!user) {
-            return res.status(400).send({ message: 'Invalid credentials' })
-        }
-        if (user.verified) {
-            const candidate = await candidate.findOne({ nickname: candidate })
+        const token = req.headers.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const matric = decoded.matric
+        const verified = decoded.verified
+        if (verified) {
+            const candidate = await candidate.findOne({ nickname: candidate.nickname })
             candidate.votedBy.push(matric)
             candidate.votes += 1
             await candidate.save()

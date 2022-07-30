@@ -11,7 +11,7 @@ const register = async (req, res) => {
     const isFirstAccount = (await User.countDocuments({})) === 0;
     const role = isFirstAccount ? 'admin' : 'voter';
     const email = matric.replace('/', '-') + '@students.unilorin.edu.ng'
-    var token = jwt.sign({ email: email }, process.env.JWT_SECRET, { expiresIn: '1h' })
+
     const user = new User({
         surname,
         firstname,
@@ -21,6 +21,7 @@ const register = async (req, res) => {
         password,
         confirmationCode: token
     })
+    var token = jwt.sign({ matric: user.matric, department: user.department, level: user.level, role: user.role}, process.env.JWT_SECRET, { expiresIn: '1h' })
     try {
         const salt = await bcrypt.genSalt(10)
         user.password = await bcrypt.hash(password, salt)
@@ -84,7 +85,7 @@ const login = async (req, res) => {
         if (!isMatch) {
             return res.status(400).send({ message: 'Invalid Password' })
         }
-        const token = jwt.sign({ matric: user.matric, department: user.department, level: user.level}, process.env.JWT_SECRET, { expiresIn: '1h' })
+        const token = jwt.sign({ matric: user.matric, department: user.department, level: user.level, role: user.role, verified: user.verified}, process.env.JWT_SECRET, { expiresIn: '1h' })
         res.status(200).send({ token })
     } catch (error) {
         res.status(400).send({ message: error.message })
