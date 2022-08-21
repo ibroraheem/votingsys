@@ -96,9 +96,4 @@ const vote = async (req, res) => {
 
 }
 
-module.exports = {
-    requestOtp,
-    verifyOtp,
-    getCandidates,
-    vote
-}
+module.exports = {requestOtp, verifyOtp, getCandidates, vote}

@@ -5,9 +5,15 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+  
     firstname: {
         type: String,
         required: true
+    },
+
+    othernames: {
+        type: String,
+        required: false
     },
 
     matric: {
@@ -29,6 +35,13 @@ const UserSchema = new mongoose.Schema({
         required: true,
         enum: ['voter', 'admin']
     },
+    
+    level: {
+        type: String,
+        required: true,
+        enum:['100', '200', '300', '400', '500']
+    },
+
     status: {
         type: String,
         required: true,
