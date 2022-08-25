@@ -1,4 +1,4 @@
-const Candidate = require('../models/candidate');
+const Candidate = require('../models/candidates');
 const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET;
 
@@ -43,10 +43,29 @@ const updateCandidate = async (req, res) => {
 const deleteCandidate = async (req, res) => {
     if (decoded.role === 'admin') 
     try{
+    
         const candidate = await Candidate.findByIdAndDelete(req.params.id)
         res.status(200).json({ candidate })
     } catch(error){
         res.status(400).send({ message: error.message })
     }
 }
-module.exports = { addCandidate, getCandidates, getCandidate, updateCandidate, deleteCandidate }
+
+const getCandidateVotes = async (req, res) => {
+    try{
+    const candidate = await Candidate.findById(req.params.id)
+    res.status(200).json({ candidate })
+    }catch(error){
+        res.status(400).send({ message: error.message })
+    }
+}
+const getCandidateVoters = async (req, res) => {
+    try{
+    const candidate = await Candidate.findById(req.params.id)
+    res.status(200).json({ candidate })
+    }catch(error){
+        res.status(400).send({ message: error.message })
+    }
+}
+module.exports = {addCandidate, getCandidates, getCandidate, updateCandidate, deleteCandidate, getCandidateVotes, getCandidateVoters}
+

@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const {getCandidate, addCandidate, getCandidates, getCandidateVotes, getCandidateVoters, updateCandidate, deleteCandidate} =
+const {getCandidate, addCandidate, getCandidates, getCandidateVotes, getCandidateVoters, updateCandidate, deleteCandidate} = require('../controllers/candidateController')
 router.delete('/candidate/:id', deleteCandidate)
 router.patch('/candidate/:id', updateCandidate)
 router.get('/candidates', getCandidates)
