@@ -22,7 +22,7 @@ const register = async (req, res) => {
         password,
         confirmationCode: token
     })
-    var token = jwt.sign({ matric: user.matric, department: user.department, level: user.level, role: user.role}, process.env.JWT_SECRET, { expiresIn: '1h' })
+    var token = jwt.sign({ matric: user.matric, department: user.department, level: user.level, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' })
     try {
         const salt = await bcrypt.genSalt(10)
         user.password = await bcrypt.hash(password, salt)
@@ -73,9 +73,6 @@ const verifyVoter = async (req, res) => {
 }
 
 const login = async (req, res) => {
-    if (User.status !== 'Verified') {
-        return res.status(401).send({ message: 'Unverified Voter. Please check your email to verify your voter account' })
-    }
     const { matric, password } = req.body
     try {
         const user = await User.findOne({ matric })
@@ -86,10 +83,17 @@ const login = async (req, res) => {
         if (!isMatch) {
             return res.status(400).send({ message: 'Invalid Password' })
         }
-        const token = jwt.sign({ matric: user.matric, department: user.department, level: user.level, role: user.role, verified: user.verified}, process.env.JWT_SECRET, { expiresIn: '1h' })
+        const token = jwt.sign({ matric: user.matric, department: user.department, level: user.level, role: user.role, verified: user.verified }, process.env.JWT_SECRET, { expiresIn: '1h' })
         res.status(200).send({ token })
     } catch (error) {
         res.status(400).send({ message: error.message })
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const isVerified = decoded.verified
+    if (!isVerified) {
+        return res.status(400).send({ message: 'User not verified, Kindly check your email for verification link' })
+    } else {
+        return res.status(200).send({ message: 'User verified' })
     }
 }
 
@@ -99,7 +103,7 @@ const forgotPassword = async (req, res) => {
     if (!user) {
         return res.status(400).send({ message: 'Invalid Matric Number' })
     }
-    const token = jwt.sign({ matric: user.matric, department: user.department, level: user.level, role: user.role, verified: user.verified}, process.env.JWT_SECRET, { expiresIn: '1h' })
+    const token = jwt.sign({ matric: user.matric, department: user.department, level: user.level, role: user.role, verified: user.verified }, process.env.JWT_SECRET, { expiresIn: '1h' })
     const transport = nodemailer.createTransport({
         host: 'smtp.zoho.eu',
         port: 465,
@@ -127,7 +131,7 @@ const forgotPassword = async (req, res) => {
     })
 }
 const resetPassword = async (req, res) => {
-    const { password} = req.body
+    const { password } = req.body
     const user = await User.findOne({ confirmationCode: req.params.token })
     if (!user) {
         return res.status(400).send({ message: 'Invalid Token' })
