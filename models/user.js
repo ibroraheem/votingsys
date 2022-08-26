@@ -5,7 +5,7 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-  
+
     firstname: {
         type: String,
         required: true
@@ -35,11 +35,11 @@ const UserSchema = new mongoose.Schema({
         required: true,
         enum: ['voter', 'admin']
     },
-    
+
     level: {
         type: String,
         required: true,
-        enum:['100', '200', '300', '400', '500']
+        enum: ['100', '200', '300', '400', '500']
     },
 
     status: {
@@ -52,7 +52,7 @@ const UserSchema = new mongoose.Schema({
         type: String,
         unique: true
     },
-    verified:{
+    verified: {
         type: Boolean,
         default: false
     },
@@ -60,8 +60,9 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: false
     }
-
-})
+},
+    { timestamps: true }
+)
 
 
 
