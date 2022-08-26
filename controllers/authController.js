@@ -8,8 +8,6 @@ require('dotenv').config()
 const register = async (req, res) => {
 
     const { surname, firstname, othernames, matric, department, password } = req.body
-    const isFirstAccount = (await User.countDocuments({})) === 0;
-    const role = isFirstAccount ? 'admin' : 'voter';
     var email = matric.replace('/', '-') + '@students.unilorin.edu.ng'
 
     const user = new User({
@@ -18,7 +16,6 @@ const register = async (req, res) => {
         othernames,
         matric,
         department,
-        role,
         password,
         confirmationCode: token
     })
