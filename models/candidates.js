@@ -21,14 +21,6 @@ const CandidateSchema = new mongoose.Schema({
     department: {
         type: String,
         required: true
-    },
-    votedBy: {
-        type: Array,
-        default: []
-    },
-    votes: {
-        type: Number,
-        default: 0
     }
 },
     { timestamps: true }

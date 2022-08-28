@@ -30,11 +30,6 @@ const UserSchema = new mongoose.Schema({
         required: true,
         enum: ['ABE', 'BME', 'CHE', 'CPE', 'CVE', 'ELE', 'FBE', 'MEE', 'MME', 'WRE']
     },
-    role: {
-        type: String,
-        required: true,
-        default: 'voter'
-    },
 
     level: {
         type: String,
@@ -59,6 +54,10 @@ const UserSchema = new mongoose.Schema({
     otp: {
         type: String,
         required: false
+    },
+    voted: {
+        type: Boolean,
+        default: false
     }
 },
     { timestamps: true }

@@ -1,4 +1,7 @@
-const user = require('../models/user')
+const User = require('../models/user')
+const Vote = require('../models/votes')
+const Post = require('../models/posts')
+const Candidate = require('../models/candidates')
 const nodemailer = require('nodemailer')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
@@ -7,7 +10,7 @@ const requestOtp = async (req, res) => {
     const token = req.headers.authorization.split(' ')[1]
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
     const matric = decoded.matric
-    const email = user.matric.replace('/', '-') + '@students.unilorin.edu.ng'
+    const email = User.matric.replace('/', '-') + '@students.unilorin.edu.ng'
     try {
         const user = await user.findOne({ matric })
         if (!user) {
@@ -49,13 +52,13 @@ const verifyOtp = async (req, res) => {
     const matric = decoded.matric
     const otp = req.body
     try {
-        const user = await user.findOne({ matric })
+        const user = await User.findOne({ matric })
         if (!user) {
             return res.status(400).send({ message: 'Invalid credentials' })
         }
         if (user.otp === otp) {
             user.verified = true
-            await user.save()
+            await User.save()
             res.status(200).send({ message: 'OTP verified' })
         } else {
             res.status(400).send({ message: 'Invalid OTP' })
@@ -75,26 +78,11 @@ const getCandidates = async (req, res) => {
 }
 
 const vote = async (req, res) => {
- 
     try {
-        const token = req.headers.authorization.split(' ')[1]
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        const matric = decoded.matric
-        const verified = decoded.verified
-        if (verified) {
-            const candidate = await candidate.findOne({ nickname: candidate.nickname })
-            candidate.votedBy.push(matric)
-            candidate.votes += 1
-            await candidate.save()
-            res.status(200).send({ message: 'Voted successfully' })
-        } else {
-            res.status(400).send({ message: 'OTP not verified' })
-        }
+
     } catch (error) {
         res.status(400).send({ message: error.message })
     }
-
 }
 
-
-module.exports = {requestOtp, verifyOtp, getCandidates, vote}
+module.exports = { requestOtp, verifyOtp, getCandidates, vote }

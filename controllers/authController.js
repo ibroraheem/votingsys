@@ -7,19 +7,23 @@ require('dotenv').config()
 
 const register = async (req, res) => {
 
-    const { surname, firstname, othernames, matric, department, password } = req.body
+    const { surname, firstname, othernames, matric, password } = req.body
     var email = matric.replace('/', '-') + '@students.unilorin.edu.ng'
+    const token = jwt.sign({ id: user._id, matric: user.matric, voted: user.voted, department: user.department, level: user.level }, process.env.JWT_SECRET, { expiresIn: '1h' })
 
     const user = new User({
         surname,
         firstname,
         othernames,
         matric,
-        department,
+        department: (matric.includes('ga') ? 'ABE' : matric.includes('gb') ? 'CVE'
+            : matric.includes('gc') ? 'ELE' : matric.includes('gd') ? 'MEE'
+                : matric.includes('gr') ? 'CPE' : matric.includes('gq') ? 'WRE'
+                    : matric.includes('gt') ? 'FBE' : matric.includes('gm') ? 'MME'
+                        : matric.includes('gn') ? 'CHE' : 'BME'),
         password,
         confirmationCode: token
     })
-    var token = jwt.sign({ matric: user.matric, department: user.department, level: user.level, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' })
     try {
         const salt = await bcrypt.genSalt(10)
         user.password = await bcrypt.hash(password, salt)
@@ -37,10 +41,7 @@ const register = async (req, res) => {
             from: 'ibroraheem@zohomail.eu',
             to: email,
             subject: 'Please confirm your account',
-            html: `<h1>Please confirm your account</h1>
-       <p>Please click the link to confirm your account: <a href="http://localhost/confirm/${token}">Confirm</a></p>
-       <p>If you did not request this, please ignore this email</p>
-       <p>Thank you</p>`
+            html: `<h1>Please confirm your account</h1> <p>Please click the link to confirm your account: <a href="http://localhost/confirm/${token}">Confirm</a></p> <p>If you did not request this, please ignore this email</p> <p>Thank you</p>`
         }
         await user.save()
         res.status(201).send({ message: 'User created successfully' })
@@ -80,7 +81,7 @@ const login = async (req, res) => {
         if (!isMatch) {
             return res.status(400).send({ message: 'Invalid Password' })
         }
-        const token = jwt.sign({ matric: user.matric, department: user.department, level: user.level, role: user.role, verified: user.verified }, process.env.JWT_SECRET, { expiresIn: '1h' })
+        const token = jwt.sign({ id: user._id, matric: user.matric, voted: user.voted, department: user.department, level: user.level, verified: user.verified }, process.env.JWT_SECRET, { expiresIn: '1h' })
         res.status(200).send({ token })
     } catch (error) {
         res.status(400).send({ message: error.message })
@@ -114,8 +115,7 @@ const forgotPassword = async (req, res) => {
         from: 'NUESA',
         to: email,
         subject: 'Reset Password',
-        html: `<h1>Reset Password</h1>
-         <p>Please click the link to reset your password: <a href="http://localhost/reset/${token}">Reset</a></p>
+        html: `<h1>Reset Password</h1> <p>Please click the link to reset your password: <a href="http://localhost/reset/${token}">Reset</a></p>
             <p>If you did not request this, please ignore this email</p>
             <p>Thank you</p>`
     }
@@ -139,4 +139,14 @@ const resetPassword = async (req, res) => {
     res.status(200).send({ message: 'Password reset successfully' })
 }
 
-module.exports = { register, login, verifyVoter, resetPassword, forgotPassword }
+const logout = async (req, res) => {
+    let token = req.headers.authorization.split(' ')[1]
+    try {
+        token = jwt.sign(' ', ' ', { expiresIn: '1ms' })
+        res.status(200).send({ message: 'User logged out' })
+    } catch (error) {
+        res.status(400).send({ message: error.message })
+    }
+}
+
+module.exports = { register, login, verifyVoter, resetPassword, forgotPassword, logout }
