@@ -78,8 +78,18 @@ const getCandidates = async (req, res) => {
 }
 
 const vote = async (req, res) => {
+    const token = req.headers.authorization.split(' ')[1]
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const voted = decoded.voted
+    const verified = decoded.verified
     try {
-
+        if (!token) res.status(403).send({ message: 'Please login to vote' })
+        if (voted && verified) {
+            const vote = await Vote.create(req.body)
+            res.status(200).send(vote)
+        } else {
+            res.status(400).send({ message: 'You have already voted' })
+        }
     } catch (error) {
         res.status(400).send({ message: error.message })
     }

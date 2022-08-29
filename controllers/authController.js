@@ -140,13 +140,14 @@ const resetPassword = async (req, res) => {
 }
 
 const logout = async (req, res) => {
-    let token = req.headers.authorization.split(' ')[1]
     try {
-        token = jwt.sign(' ', ' ', { expiresIn: '1ms' })
-        res.status(200).send({ message: 'User logged out' })
+        let token = req.headers.authorization.split(' ')[1]
+        token = jwt.sign({ token: token }, 'secret', { expiresIn: 1 })
+        res.status(200).send({ token, message: 'Logged out' })
     } catch (error) {
         res.status(400).send({ message: error.message })
     }
+
 }
 
 module.exports = { register, login, verifyVoter, resetPassword, forgotPassword, logout }
