@@ -42,6 +42,12 @@ const getNominee = async (req, res) => {
     }
 }
 
+/**
+ * It takes a request, checks if the user is an admin, if they are, it updates the nominee with the id
+ * in the request params with the body of the request.
+ * @param req - the request object
+ * @param res - the response object
+ */
 const updateNominee = async (req, res) => {
     const token = req.headers.authorization.split(' ')[1]
     const decoded = jwt.verify(token, secret)
@@ -57,5 +63,6 @@ const updateNominee = async (req, res) => {
     }
 }
 
+/* Exporting the functions to be used in other files. */
 module.exports = {nominate, getNominees, getNominee, updateNominee}
 

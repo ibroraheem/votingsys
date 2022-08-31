@@ -5,58 +5,74 @@ const nodemailer = require('nodemailer')
 require('dotenv').config()
 
 
+/**
+ * It creates a new user and sends a confirmation email to the user's email address.
+ * </code>
+ * @param req - request
+ * @param res - the response object
+ */
 const register = async (req, res) => {
-
-    const { surname, firstname, othernames, matric, password } = req.body
-    var email = matric.replace('/', '-') + '@students.unilorin.edu.ng'
-    const token = jwt.sign({ id: user._id, matric: user.matric, voted: user.voted, department: user.department, level: user.level }, process.env.JWT_SECRET, { expiresIn: '1h' })
-
-    const user = new User({
-        surname,
-        firstname,
-        othernames,
-        matric,
-        department: (matric.includes('ga') ? 'ABE' : matric.includes('gb') ? 'CVE'
-            : matric.includes('gc') ? 'ELE' : matric.includes('gd') ? 'MEE'
-                : matric.includes('gr') ? 'CPE' : matric.includes('gq') ? 'WRE'
-                    : matric.includes('gt') ? 'FBE' : matric.includes('gm') ? 'MME'
-                        : matric.includes('gn') ? 'CHE' : 'BME'),
-        password,
-        confirmationCode: token
-    })
     try {
-        const salt = await bcrypt.genSalt(10)
-        user.password = await bcrypt.hash(password, salt)
+        const { surname, firstname, othernames, matric, password, level } = req.body
+        var email = matric.replace('/', '-') + '@students.unilorin.edu.ng'
+        const isExisting = await User.findOne({ matric })
+        const token = jwt.sign({ surname: surname, firstname: firstname, matric, email: email }, process.env.JWT_SECRET, { expiresIn: '1h' })
+        if (isExisting) {
+            res.status(400).send({ message: 'User already exists' })
+        } else {
+            const user = new User({
+                surname,
+                firstname,
+                othernames,
+                matric,
+                password,
+                email,
+                department: (matric.includes('ga') ? 'ABE' : matric.includes('gb') ? 'CVE'
+                    : matric.includes('gc') ? 'ELE' : matric.includes('gd') ? 'MEE'
+                        : matric.includes('gr') ? 'CPE' : matric.includes('gq') ? 'WRE'
+                            : matric.includes('gt') ? 'FBE' : matric.includes('gm') ? 'MME'
+                                : matric.includes('gn') ? 'CHE' : matric.includes('gp') ? 'BME' : 'Invalid'),
+                level,
+                confirmationCode: token,
+            })
 
-        const transport = nodemailer.createTransport({
-            host: 'smtp.zoho.eu',
-            port: 465,
-            auth: {
-                user: process.env.MAIL,
-                pass: process.env.PASS
+            const transport = nodemailer.createTransport({
+                host: 'smtp.zoho.eu',
+                port: 465,
+                auth: {
+                    user: process.env.MAIL,
+                    pass: process.env.PASS
+                }
+
+            })
+            const mailOptions = {
+                from: 'ibroraheem@zohomail.eu',
+                to: email,
+                subject: 'Please confirm your account',
+                html: `<h1>Please confirm your account</h1> <p>Please click the link to confirm your account: <a href="http://localhost/confirm/${token}">Confirm</a></p> <p>If you did not request this, please ignore this email</p> <p>Thank you</p>`
             }
+            await user.save()
+            res.status(201).send({ message: 'User created successfully' })
+            transport.sendMail(mailOptions, (err, info) => {
+                if (err) {
+                    console.log(err)
+                } else {
+                    console.log('Email sent: ' + info.response)
+                }
+            })
 
-        })
-        const mailOptions = {
-            from: 'ibroraheem@zohomail.eu',
-            to: email,
-            subject: 'Please confirm your account',
-            html: `<h1>Please confirm your account</h1> <p>Please click the link to confirm your account: <a href="http://localhost/confirm/${token}">Confirm</a></p> <p>If you did not request this, please ignore this email</p> <p>Thank you</p>`
         }
-        await user.save()
-        res.status(201).send({ message: 'User created successfully' })
-        transport.sendMail(mailOptions, (err, info) => {
-            if (err) {
-                console.log(err)
-            } else {
-                console.log('Email sent: ' + info.response)
-            }
-        })
-
     } catch (error) {
         res.status(400).send({ message: error.message })
     }
 }
+
+/**
+ * It finds a user with the confirmation code that matches the token in the url, then changes the
+ * user's status to 'Verified' and saves the user.
+ * @param req - request
+ * @param res - the response object
+ */
 const verifyVoter = async (req, res) => {
     User.findOne({ confirmationCode: req.params.token })
         .then(user => {
@@ -70,6 +86,14 @@ const verifyVoter = async (req, res) => {
         })
 }
 
+/**
+ * It checks if the user is verified, if not, it returns a message, if yes, it returns a message.
+ * </code>
+ * @param req - The request object. This contains information about the HTTP request that raised the
+ * event.
+ * @param res - The response object.
+ * @returns The token is being returned.
+ */
 const login = async (req, res) => {
     const { matric, password } = req.body
     try {
@@ -95,6 +119,15 @@ const login = async (req, res) => {
     }
 }
 
+/**
+ * It takes the matric number from the request body, finds the user with that matric number, signs a
+ * token with the user's matric number, department, level, role and verified status, sends the token to
+ * the user's email address and then sends a response to the client.
+ * </code>
+ * @param req - request object
+ * @param res - the response object
+ * @returns The token is being returned
+ */
 const forgotPassword = async (req, res) => {
     const { matric } = req.body
     const user = await User.findOne({ matric })
@@ -127,6 +160,15 @@ const forgotPassword = async (req, res) => {
         }
     })
 }
+
+/**
+ * It takes a password from the request body, finds a user with the confirmation code from the request
+ * params, if the user exists, it generates a salt, hashes the password, saves the user, and sends a
+ * response.
+ * @param req - The request object.
+ * @param res - The response object.
+ * @returns The user object
+ */
 const resetPassword = async (req, res) => {
     const { password } = req.body
     const user = await User.findOne({ confirmationCode: req.params.token })
@@ -139,6 +181,12 @@ const resetPassword = async (req, res) => {
     res.status(200).send({ message: 'Password reset successfully' })
 }
 
+/**
+ * It takes the token from the request header, signs it with a secret, and sets the expiration to 1
+ * second.
+ * @param req - The request object.
+ * @param res - The response object.
+ */
 const logout = async (req, res) => {
     try {
         let token = req.headers.authorization.split(' ')[1]
