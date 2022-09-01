@@ -1,8 +1,19 @@
+/* This is importing the required modules. */
 const Admin = require('../models/admin')
 const jwt = require('jsonwebtoken')
 const Posts = require('../models/posts')
 const secret = process.env.JWT_SECRET
 
+/**
+ * It takes a request and a response, and if the request has a header with the key 'authorization' and
+ * the value is a string that starts with 'Bearer' and has a space in it, then it splits the string at
+ * the space, takes the second element of the array, decodes it using the secret, and if the decoded
+ * object has a property called 'role' with the value 'admin', then it creates a new post using the
+ * request body, saves it, and sends a response with a status of 200 and a message saying the post was
+ * added successfully.
+ * @param req - request
+ * @param res - The response object.
+ */
 const addPost = (req, res) => {
     const token = req.headers.authorization.split(' ')[1]
     const decoded = jwt.verify(token, secret)
@@ -19,6 +30,12 @@ const addPost = (req, res) => {
     }
 }
 
+/**
+ * If the user is an admin, then return all posts.
+ * @param req - The request object. This object represents the HTTP request and has properties for the
+ * request query string, parameters, body, HTTP headers, and so on.
+ * @param res - the response object
+ */
 const getPosts = (req, res) => {
     const token = req.headers.authorization.split(' ')[1]
     const decoded = jwt.verify(token, secret)
@@ -34,6 +51,11 @@ const getPosts = (req, res) => {
     }
 }
 
+/**
+ * It gets a post by id, but only if the user is an admin.
+ * @param req - request
+ * @param res - the response object
+ */
 const getPost = (req, res) => {
     const token = req.headers.authorization.split(' ')[1]
     const decoded = jwt.verify(token, secret)
@@ -49,6 +71,12 @@ const getPost = (req, res) => {
     }
 }
 
+/**
+ * It takes a request, checks the token, checks the role, and then updates the post.
+ * @param req - The request object. This object represents the HTTP request and has properties for the
+ * request query string, parameters, body, HTTP headers, and so on.
+ * @param res - the response object
+ */
 const updatePost = (req, res) => {
     const token = req.headers.authorization.split(' ')[1]
     const decoded = jwt.verify(token, secret)
@@ -64,6 +92,11 @@ const updatePost = (req, res) => {
     }
 }
 
+/**
+ * It deletes a post if the user is an admin.
+ * @param req - request
+ * @param res - The response object.
+ */
 const deletePost = (req, res) => {
     const token = req.headers.authorization.split(' ')[1]
     const decoded = jwt.verify(token, secret)
@@ -79,4 +112,5 @@ const deletePost = (req, res) => {
     }
 }
 
+/* Exporting the functions. */
 module.exports = { addPost, getPosts, getPost, updatePost, deletePost }

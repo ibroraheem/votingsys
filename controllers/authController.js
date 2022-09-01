@@ -198,4 +198,5 @@ const logout = async (req, res) => {
 
 }
 
+/* Exporting the functions in the file. */
 module.exports = { register, login, verifyVoter, resetPassword, forgotPassword, logout }

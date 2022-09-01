@@ -1,8 +1,15 @@
+/* Importing the Nominee model, the jsonwebtoken library, and the secret key from the environment
+variables. */
 const Nominee = require('../models/nominees')
 const jwt = require('jsonwebtoken')
 const secret = process.env.JWT_SECRET
 
 
+/**
+ * It creates a new nominee in the database using the data sent in the request body.
+ * @param req - The request object.
+ * @param res - the response object
+ */
 const nominate = async (req, res) => {
     try {
         const nominee = await Nominee.create(req.body)
@@ -12,6 +19,11 @@ const nominate = async (req, res) => {
     }
 }
 
+/**
+ * It gets all the nominees from the database and sends them to the client.
+ * @param req - request
+ * @param res - the response object
+ */
 const getNominees = async (req, res) => {
     const token = req.headers.authorization.split(' ')[1]
     const decoded = jwt.verify(token, secret)
@@ -27,6 +39,11 @@ const getNominees = async (req, res) => {
     }
 }
 
+/**
+ * It gets a nominee by id, but only if the user is an admin.
+ * @param req - request
+ * @param res - the response object
+ */
 const getNominee = async (req, res) => {
     const token = req.headers.authorization.split(' ')[1]
     const decoded = jwt.verify(token, secret)

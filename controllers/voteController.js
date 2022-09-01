@@ -1,3 +1,4 @@
+/* Importing the required modules. */
 const User = require('../models/user')
 const Vote = require('../models/votes')
 const Post = require('../models/posts')
@@ -6,6 +7,12 @@ const nodemailer = require('nodemailer')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
 
+/**
+ * It sends an OTP to the user's email and verifies it.
+ * @param req - request
+ * @param res - The response object.
+ * @returns the value of the function.
+ */
 const requestOtp = async (req, res) => {
     const token = req.headers.authorization.split(' ')[1]
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
@@ -46,6 +53,13 @@ const requestOtp = async (req, res) => {
     }
 }
 
+/**
+ * It verifies the OTP sent to the user's email address.
+ * </code>
+ * @param req - request object
+ * @param res - response object
+ * @returns The user object
+ */
 const verifyOtp = async (req, res) => {
     const token = req.headers.authorization.split(' ')[1]
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
@@ -68,6 +82,12 @@ const verifyOtp = async (req, res) => {
     }
 }
 
+/**
+ * It's an async function that uses the mongoose model to find all the candidates in the database and
+ * then sends them back to the client.
+ * @param req - The request object.
+ * @param res - The response object.
+ */
 const getCandidates = async (req, res) => {
     try {
         const candidates = await Candidate.find({})
@@ -77,6 +97,12 @@ const getCandidates = async (req, res) => {
     }
 }
 
+/**
+ * It creates a vote and updates the user's voted status to true.
+ * </code>
+ * @param req - request
+ * @param res - response object
+ */
 const vote = async (req, res) => {
     let token = req.headers.authorization.split(' ')[1]
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
@@ -97,4 +123,5 @@ const vote = async (req, res) => {
     }
 }
 
+/* Exporting the functions in the file. */
 module.exports = { requestOtp, verifyOtp, getCandidates, vote }
