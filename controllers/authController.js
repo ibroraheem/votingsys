@@ -20,12 +20,14 @@ const register = async (req, res) => {
         if (isExisting) {
             res.status(400).send({ message: 'User already exists' })
         } else {
+            const salt = await bcrypt.genSalt(10)
+            const hashedPassword = await bcrypt.hash(password, salt)
             const user = new User({
                 surname,
                 firstname,
                 othernames,
                 matric,
-                password,
+                password: hashedPassword,
                 email,
                 department: (matric.includes('ga') ? 'ABE' : matric.includes('gb') ? 'CVE'
                     : matric.includes('gc') ? 'ELE' : matric.includes('gd') ? 'MEE'
@@ -69,7 +71,7 @@ const register = async (req, res) => {
 
 /**
  * It finds a user with the confirmation code that matches the token in the url, then changes the
- * user's status to 'Verified' and saves the user.
+ * user's status to 'verified' and saves the user.
  * @param req - request
  * @param res - the response object
  */
@@ -77,7 +79,7 @@ const verifyVoter = async (req, res) => {
     User.findOne({ confirmationCode: req.params.token })
         .then(user => {
             if (user) {
-                user.status = 'Verified'
+                user.status = 'verified'
                 user.save()
                 res.status(200).send({ message: 'User verified' })
             } else {
@@ -111,8 +113,8 @@ const login = async (req, res) => {
         res.status(400).send({ message: error.message })
     }
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    const isVerified = decoded.verified
-    if (!isVerified) {
+    const isVerified = decoded.status
+    if (!isVerified === true) {
         return res.status(400).send({ message: 'User not verified, Kindly check your email for verification link' })
     } else {
         return res.status(200).send({ message: 'User verified' })

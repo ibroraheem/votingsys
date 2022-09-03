@@ -47,7 +47,7 @@ const UserSchema = new mongoose.Schema({
         type: String,
         unique: true
     },
-    verified: {
+    blacklisted: {
         type: Boolean,
         default: false
     },

@@ -8,9 +8,23 @@ const secret = process.env.JWT_SECRET
  */
 
 const register = async (req, res) => {
+    const { username, email, password } = req.body
+    const salt = await bcrypt.genSalt(10)
+    const hashedPassword = await bcrypt.hash(password, salt)
+
     try {
-        const admin = await Admin.create(req.body)
-        res.status(200).json({ admin })
+        const isExisting = await Admin.find({})
+        if (isExisting.length > 0) {
+            return res.status(400).send({ message: 'Admin already exists' })
+        }
+        const admin = new Admin({
+            username,
+            email,
+            password: hashedPassword
+        })
+        await admin.save()
+        res.status(201).json({ message: 'Admin created successfully', admin: admin.username })
+
     } catch (error) {
         res.status(400).send({ message: error.message })
     }
@@ -23,16 +37,20 @@ const register = async (req, res) => {
  * @param res - The response object.
  */
 const login = async (req, res) => {
-    try {
-        const admin = await Admin.findOne({ email: req.body.email })
-        if (!admin) {
-            res.status(400).send({ message: 'Invalid email or password' })
-        } else {
-            const token = jwt.sign({ id: admin._id, role: 'admin' }, secret, { expiresIn: '1h' })
-            res.status(200).json({ token })
+   const {username, password} = req.body
+    try{
+        const admin = await Admin.findOne({username})
+        if(!admin){
+            return res.status(400).send({message: 'Admin does not exist'})
         }
-    } catch (error) {
-        res.status(400).send({ message: error.message })
+        const isPasswordCorrect = await bcrypt.compare(password, admin.password)
+        if(!isPasswordCorrect){
+            return res.status(400).send({message: 'Invalid password'})
+        }
+        const token = jwt.sign({username: admin.username, role: admin.role}, secret)
+        res.status(200).json({message: 'Login successful', token})
+    }catch(error){
+        res.status(400).send({message: error.message})
     }
 }
 
