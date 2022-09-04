@@ -9,6 +9,11 @@ const CandidateSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    matric: {
+        type: String,
+        required: true,
+        unique: true
+    },
     post: {
         type: String,
         required: true,
@@ -21,9 +26,13 @@ const CandidateSchema = new mongoose.Schema({
     department: {
         type: String,
         required: true
+    },
+    level: {
+        type: String,
+        required: true,
+        enum: ['100', '200', '300', '400']
     }
-},
-    { timestamps: true }
+}, { timestamps: true }
 )
 
 const Candidates = new mongoose.model('Candidates', CandidateSchema)

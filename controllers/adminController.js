@@ -1,12 +1,15 @@
 const Admin = require('../models/admin')
 const jwt = require('jsonwebtoken')
 const secret = process.env.JWT_SECRET
-/**
- * It creates a new admin user in the database.
- * @param req - The request object.
- * @param res - The response object.
- */
 
+
+/**
+ * It checks if there's an admin in the database, if there is, it returns an error message, if there
+ * isn't, it creates a new admin.
+ * @param req - request
+ * @param res - the response object
+ * @returns The admin username
+ */
 const register = async (req, res) => {
     const { username, email, password } = req.body
     const salt = await bcrypt.genSalt(10)

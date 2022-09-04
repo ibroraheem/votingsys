@@ -37,7 +37,7 @@ const NomineeSchema = new mongoose.Schema({
     level: {
         type: String,
         required: true,
-        enum: ['100', '200', '300', '400',]
+        enum: ['100', '200', '300', '400']
     },
 },
     { timestamps: true }

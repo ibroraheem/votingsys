@@ -16,8 +16,8 @@ const secret = process.env.JWT_SECRET;
  */
 const addCandidate = async (req, res) => {
     try {
-        var token = req.header.authorization.split(' ')[1]
-        var decoded = jwt.verify(token, secret)
+        const token = req.header.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, secret)
         if (decoded.role === 'admin') {
             const candidate = await Candidate.create(req.body)
             res.status(201).json({ candidate })
@@ -76,6 +76,8 @@ const getCandidate = async (req, res) => {
  * @param res - The response object.
  */
 const updateCandidate = async (req, res) => {
+    const token = req.header.authorization.split(' ')[1]
+    const decoded = jwt.verify(token, secret)
     if (decoded.role === 'admin')
         try {
             const candidate = await Candidate.findByIdAndUpdate(req.params.id, req.body, { new: true })
@@ -91,14 +93,16 @@ const updateCandidate = async (req, res) => {
  * @param res - the response object
  */
 const deleteCandidate = async (req, res) => {
-    if (decoded.role === 'admin')
-        try {
-
+    try {
+        const token = req.header.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, secret)
+        if (decoded.role === 'admin') {
             const candidate = await Candidate.findByIdAndDelete(req.params.id)
             res.status(200).json({ candidate })
-        } catch (error) {
-            res.status(400).send({ message: error.message })
         }
+    } catch (error) {
+        res.status(400).send({ message: error.message })
+    }
 }
 
 /**

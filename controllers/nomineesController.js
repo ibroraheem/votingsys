@@ -3,6 +3,7 @@ variables. */
 const Nominee = require('../models/nominees')
 const jwt = require('jsonwebtoken')
 const secret = process.env.JWT_SECRET
+const Candidates = require('../models/candidates')
 
 
 /**
@@ -12,8 +13,20 @@ const secret = process.env.JWT_SECRET
  */
 const nominate = async (req, res) => {
     try {
-        const nominee = await Nominee.create(req.body)
-        res.status(200).json({ nominee })
+        const { firstName, lastName, otherNames, matricNumber, department, post, nickname, cgpa, level, image } = req.body
+        const nominee = await Nominee.create({
+            firstName,
+            lastName,
+            otherNames,
+            matricNumber,
+            department,
+            post,
+            nickname,
+            cgpa,
+            level,
+            image
+        })
+        res.status(201).json({ nominee })
     } catch (error) {
         res.status(400).send({ message: error.message })
     }
@@ -80,6 +93,34 @@ const updateNominee = async (req, res) => {
     }
 }
 
+const confirmNomination = (req, res) => {
+    const token = req.headers.authorization.split(' ')[1]
+    const decoded = jwt.verify(token, secret)
+    if (decoded.role === 'admin') {
+        try {
+            const nominee = Nominee.findById(req.params.id)
+            if (nominee) {
+                const candidate = Candidates.create({
+                    firstName: nominee.firstName,
+                    lastName: nominee.lastName,
+                    otherNames: nominee.otherNames,
+                    matric: nominee.matricNumber,
+                    nickname: nominee.nickname,
+                    post: nominee.post,
+                    level: nominee.level,
+                    department: nominee.department,
+                    image: nominee.image,
+                })
+                res.status(200).json({ candidate })
+            } else {
+                res.status(400).send({ message: 'Nominee not found' })
+            }
+        } catch (error) {
+            res.status(400).send({ message: error.message })
+        }
+    }
+}
+
 /* Exporting the functions to be used in other files. */
-module.exports = {nominate, getNominees, getNominee, updateNominee}
+module.exports = { nominate, getNominees, getNominee, updateNominee, confirmNomination }
 

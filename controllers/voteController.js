@@ -64,7 +64,7 @@ const verifyOtp = async (req, res) => {
     const token = req.headers.authorization.split(' ')[1]
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
     const matric = decoded.matric
-    const otp = req.body
+    const { otp } = req.body
     try {
         const user = await User.findOne({ matric })
         if (!user) {
