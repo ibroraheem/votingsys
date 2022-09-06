@@ -9,23 +9,6 @@ const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET;
 
 
-/**
- * It creates a new candidate in the database.
- * @param req - request
- * @param res - the response object
- */
-const addCandidate = async (req, res) => {
-    try {
-        const token = req.header.authorization.split(' ')[1]
-        const decoded = jwt.verify(token, secret)
-        if (decoded.role === 'admin') {
-            const candidate = await Candidate.create(req.body)
-            res.status(201).json({ candidate })
-        }
-    } catch (error) {
-        res.status(400).send({ message: error.message })
-    }
-}
 
 /**
  * It's an async function that uses the mongoose model to find all the candidates in the database and

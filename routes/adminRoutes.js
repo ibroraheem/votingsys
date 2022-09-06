@@ -4,8 +4,8 @@ const router = express.Router()
 
 /* Importing the functions from the controller files. */
 const { login, register } = require('../controllers/adminController')
-const { getVoters, deleteVoter, blacklistVoter } = require('../controllers/voterController')
-const { getCandidates, getCandidate, addCandidate, getCandidateVotes, getCandidateVoters, updateCandidate, deleteCandidate } = require('../controllers/candidateController')
+const { getVoters, deleteVoter, blacklistVoter, unblacklistVoter } = require('../controllers/voterController')
+const { getCandidates, getCandidate, getCandidateVotes, getCandidateVoters, updateCandidate, deleteCandidate } = require('../controllers/candidateController')
 const { getNominees, getNominee, updateNominee, confirmNomination } = require('../controllers/nomineesController')
 
 /* Importing the functions from the controller files. */
@@ -14,10 +14,10 @@ router.post('/login', login)
 router.get('/voters', getVoters)
 router.delete('/voter/:id', deleteVoter)
 router.patch('/voter/:id', blacklistVoter)
+router.patch('/voter/:id', unblacklistVoter)
 router.get('/candidates', getCandidates)
 router.get('/candidate/:id', getCandidate)
 router.get('/candidate-votes', getCandidateVotes)
-router.post('/candidate', addCandidate)
 router.get('/candidate-voters', getCandidateVoters)
 router.patch('/candidate/:id', updateCandidate)
 router.delete('/candidate/:id', deleteCandidate)

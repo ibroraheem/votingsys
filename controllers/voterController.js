@@ -45,5 +45,23 @@ const blacklistVoter = async (req, res) => {
             res.status(400).send({ message: error.message })
         }
 }
+/**
+ * It takes a voter's id, finds the voter in the database, and updates the voter's blacklisted property
+ * to false
+ * @param req - request object
+ * @param res - the response object
+ */
+const unblacklistVoter = async (req, res) => {
+    const token = req.headers.authorization.split(' ')[1]
+    const decoded = jwt.verify(token, secret)
+    if (decoded.role === 'admin')
+        try {
+            const voter = await User.findByIdAndUpdate(req.params.id, { blacklisted: false })
+            res.status(200).json({ message: 'Voter unblacklisted successfully', voter })
+        } catch (error) {
+            res.status(400).send({ message: error.message })
+        }
+}
+
 /* Exporting the functions to be used in other files. */
-module.exports = { deleteVoter, getVoters, blacklistVoter }
+module.exports = { deleteVoter, getVoters, blacklistVoter, unblacklistVoter }
