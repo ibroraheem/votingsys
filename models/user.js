@@ -55,6 +55,10 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    otpVerified:{
+        type: Boolean,
+        default: false
+    },
     voted: {
         type: Boolean,
         default: false

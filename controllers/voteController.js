@@ -71,7 +71,7 @@ const verifyOtp = async (req, res) => {
             return res.status(400).send({ message: 'Invalid credentials' })
         }
         if (user.otp === otp) {
-            user.verified = true
+            user.verifiedOtp = true
             await User.save()
             res.status(200).send({ message: 'OTP verified' })
         } else {
@@ -97,27 +97,21 @@ const getCandidates = async (req, res) => {
     }
 }
 
-/**
- * It creates a vote and updates the user's voted status to true.
- * </code>
- * @param req - request
- * @param res - response object
- */
+
+
 const vote = async (req, res) => {
     let token = req.headers.authorization.split(' ')[1]
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
     const voted = decoded.voted
-    const verified = decoded.verified
+    const verifiedOtp = decoded.verifiedOtp
     try {
-        if (!token) res.status(403).send({ message: 'Please login to vote' })
-        if (voted === false && verified === true) {
-            const vote = await Vote.create(req.body)
-            await User.findOneAndUpdate({ matric: decoded.matric }, { $set: { voted: true } })
-            token = jwt.sign({ matric: decoded.matric, voted: true, verified: true }, process.env.JWT_SECRET, { expiresIn: '1h' })
-            res.status(200).send({ message: 'Voted', token, vote })
-        } else {
-            res.status(400).send({ message: 'You have already voted' })
+        if (voted) {
+            return res.status(400).send({ message: 'You have already voted' })
         }
+        if (!verifiedOtp) {
+            return res.status(400).send({ message: 'Please verify your OTP' })
+        }
+
     } catch (error) {
         res.status(400).send({ message: error.message })
     }
