@@ -90,6 +90,9 @@ const verifyOtp = async (req, res) => {
  */
 const getCandidates = async (req, res) => {
     try {
+        const token = req.headers.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const matric = decoded.matric
         const candidates = await Candidate.find({})
         res.status(200).send(candidates)
     } catch (error) {
@@ -103,6 +106,7 @@ const vote = async (req, res) => {
     let token = req.headers.authorization.split(' ')[1]
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
     const voted = decoded.voted
+    const matric = decoded.matric
     const verifiedOtp = decoded.verifiedOtp
     try {
         if (voted) {
@@ -111,11 +115,31 @@ const vote = async (req, res) => {
         if (!verifiedOtp) {
             return res.status(400).send({ message: 'Please verify your OTP' })
         }
-
+        const { president, vicePresident, generalSecretary, financialSecretary, sportsSecretary, welfareSecretary, publicRelationOfficer, assistantGeneralSecretary, socialSecretary, technicalDirector, src } = req.body
+        const vote = new Vote({
+            voter: matric,
+            ballot: {
+                president,
+                vicePresident,
+                generalSecretary,
+                financialSecretary,
+                sportsSecretary,
+                welfareSecretary,
+                publicRelationOfficer,
+                assistantGeneralSecretary,
+                socialSecretary,
+                technicalDirector,
+                src
+            }
+        })
+        await vote.save()
     } catch (error) {
+        console.log(error)
         res.status(400).send({ message: error.message })
     }
 }
 
-/* Exporting the functions in the file. */
+
+
+
 module.exports = { requestOtp, verifyOtp, getCandidates, vote }

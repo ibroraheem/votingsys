@@ -12,7 +12,12 @@ const secret = process.env.JWT_SECRET
 const getVoters = async (req, res) => {
     try {
         const voters = await User.find({})
-        res.status(200).json({ voters })
+        res.status(200).json({ 
+            message: 'Voters retrieved successfully',
+            totalVoters: voters.length,
+            isVoted: voters.filter(voter => voter.voted === true).length,
+            percentage: (voters.filter(voter => voter.voted === true).length / voters.length) * 100,
+         })
     } catch (error) {
         res.status(400).send({ message: error.message })
     }

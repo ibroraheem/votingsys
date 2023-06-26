@@ -1,5 +1,7 @@
 const Admin = require('../models/admin')
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcryptjs')
+require('dotenv').config()
 const secret = process.env.JWT_SECRET
 
 
@@ -56,5 +58,6 @@ const login = async (req, res) => {
         res.status(400).send({message: error.message})
     }
 }
+
 
 module.exports = { register, login }

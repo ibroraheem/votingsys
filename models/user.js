@@ -1,21 +1,10 @@
 const mongoose = require('mongoose')
 
 const UserSchema = new mongoose.Schema({
-    surname: {
+    name: {
         type: String,
         required: true
     },
-
-    firstname: {
-        type: String,
-        required: true
-    },
-
-    othernames: {
-        type: String,
-        required: false
-    },
-
     matric: {
         type: String,
         required: true,
@@ -55,7 +44,7 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    otpVerified:{
+    otpVerified: {
         type: Boolean,
         default: false
     },

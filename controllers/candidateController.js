@@ -26,6 +26,21 @@ const getCandidates = async (req, res) => {
     }
 }
 
+const addCandidate = async (req, res) => {
+    try {
+        const token = req.header.authorization.split(' ')[1]
+        const decoded = jwt.verify(token, secret)
+        if (decoded.role === 'admin') {
+            const {name, matric, department, level, post, nickname, image} = req.body
+            const candidate = await Candidate.create({name, matric, department, level, post, nickname, image})
+            res.status(200).json({ message: 'Candidate added successfully', candidate })
+        }
+    } catch (error) {
+        res.status(400).send({ message: error.message })
+    }
+}
+
+
 /**
  * It's an async function that uses the await keyword to wait for the result of the findById() method. 
  * 
